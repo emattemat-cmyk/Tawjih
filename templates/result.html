@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="utf-8"/>
+<title>نتيجة التوجيه</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:Segoe UI,Tahoma,Arial;direction:rtl;background:linear-gradient(180deg,#071129,#0a1a2a);color:#e6eef8;padding:24px}
+.card{max-width:900px;margin:30px auto;background:rgba(255,255,255,0.04);padding:20px;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+h1{margin:0 0 8px;color:#bfe3ff}
+h2{color:#a8ffda}
+ul{margin:10px 0 18px 0;padding-left:18px}
+li{margin:8px 0}
+.dev{margin-top:12px;color:#a3b4d6;font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>🎯 الشعبة المناسبة لك: {{ best_filiere }}</h1>
+<h2>نسبة التوافق: {{ best_percent }}%</h2>
+<p>نقاط القوة:</p>
+<ul>
+{% for s in strengths %}<li>{{ s }}</li>{% endfor %}
+</ul>
+<p>تقييم شامل: {{ score100 }}/100</p>
+<p>✨ أتمنى لك التوفيق والنجاح 🎉</p>
+<div class="dev">{{ developer }}</div>
+</div>
+</body>
+</html>

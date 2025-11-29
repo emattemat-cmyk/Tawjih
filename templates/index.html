@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="utf-8"/>
+<title>منصة التوجيه — الواجهة</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:Segoe UI,Tahoma,Arial;direction:rtl;background:linear-gradient(180deg,#0b1220,#0f1b2a);color:#fff;margin:0;padding:20px}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+header h1{margin:0;font-size:22px}
+.small{color:#a3b4d6;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 420px;gap:24px}
+.panel{background:rgba(255,255,255,0.06);border-radius:14px;padding:22px}
+label,select,input{display:block;width:100%;margin:8px 0;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#fff}
+button.cta{padding:12px 18px;background:#3A86FF;border:none;color:#fff;border-radius:10px;cursor:pointer;font-weight:700}
+.scene{display:none;opacity:0;transform:translateY(10px);transition:all .4s ease}
+.scene.active{display:block;opacity:1;transform:translateY(0)}
+.cube-wrap{perspective:900px;width:300px;height:300px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.cube{width:160px;height:160px;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.8,.2,1);position:relative}
+.face{position:absolute;width:160px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;backface-visibility:hidden}
+.face.front{background:linear-gradient(135deg,#2b78f6,#6dd3ff);transform:translateZ(80px)}
+.face.right{background:linear-gradient(135deg,#ff7a7a,#ffb47a);transform:rotateY(90deg) translateZ(80px)}
+.face.left{background:linear-gradient(135deg,#9b6bff,#6b9bff);transform:rotateY(-90deg) translateZ(80px)}
+.face.back{background:linear-gradient(135deg,#6bffb0,#2bd39c);transform:rotateY(180deg) translateZ(80px)}
+.cube.animate-rotate{animation:rotateCube 4s linear infinite}
+@keyframes rotateCube{0%{transform:rotateX(-12deg) rotateY(0deg)}100%{transform:rotateX(-12deg) rotateY(360deg)}}
+.icon{font-size:44px}
+.note{color:#cbd5e1;font-size:14px;text-align:center}
+.dev{margin-top:10px;color:#a3b4d6;font-size:13px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div style="width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,#1f2937,#111827);display:flex;align-items:center;justify-content:center;font-weight:800">T</div>
+  <div>
+    <h1>منصة التوجيه — اختر مستواك</h1>
+    <div class="small">واجهة تفاعلية مع أيقونات 3D وتحويل ديناميكي بين المشاهد</div>
+  </div>
+</header>
+<div class="grid">
+  <div class="panel">
+    <!-- مشاهد -->
+    <div id="scene-start" class="scene active">
+      <div class="small">الخطوة 1</div>
+      <label>اختر المستوى</label>
+      <select id="levelSelect">
+        <option value="">-- اختر --</option>
+        <option value="middle">متوسط</option>
+        <option value="high_scientifique">ثانوي علمي</option>
+        <option value="high_litteraire">ثانوي أدبي</option>
+      </select>
+      <button class="cta" onclick="gotoScene()">ابدأ</button>
+    </div>
+
+    <!-- نموذج المتوسط -->
+    <div id="scene-middle" class="scene">
+      <div class="small">متوسط — أدخل نقاط الفصول والمعدل السنوي لكل مادة</div>
+      <form id="form-middle">
+        <table>
+          <tr><th>المادة</th><th>فصل1</th><th>فصل2</th><th>فصل3</th><th>السنوي</th></tr>
+          <tr><td>اللغة العربية</td><td><input name="اللغة_العربية_t1" type="number"></td><td><input name="اللغة_العربية_t2" type="number"></td><td><input name="اللغة_العربية_t3" type="number"></td><td><input name="اللغة_العربية_annual" type="number"></td></tr>
+          <tr><td>الرياضيات</td><td><input name="الرياضيات_t1" type="number"></td><td><input name="الرياضيات_t2" type="number"></td><td><input name="الرياضيات_t3" type="number"></td><td><input name="الرياضيات_annual" type="number"></td></tr>
+          <tr><td>الفرنسية</td><td><input name="الفرنسية_t1" type="number"></td><td><input name="الفرنسية_t2" type="number"></td><td><input name="الفرنسية_t3" type="number"></td><td><input name="الفرنسية_annual" type="number"></td></tr>
+          <tr><td>الفيزياء</td><td><input name="الفيزياء_t1" type="number"></td><td><input name="الفيزياء_t2" type="number"></td><td><input name="الفيزياء_t3" type="number"></td><td><input name="الفيزياء_annual" type="number"></td></tr>
+          <tr><td>العلوم الطبيعية</td><td><input name="العلوم_طبيعية_t1" type="number"></td><td><input name="العلوم_طبيعية_t2" type="number"></td><td><input name="العلوم_طبيعية_t3" type="number"></td><td><input name="العلوم_طبيعية_annual" type="number"></td></tr>
+        </table>
+        <button class="cta" type="button" onclick="submitForm('form-middle')">احسب الشعبة المناسبة</button>
+      </form>
+    </div>
+    <!-- باقي المشاهد العلمية والأدبية مشابهة (تقدر تضيف بنفس الطريقة) -->
+  </div>
+
+  <div class="side">
+    <div class="cube-wrap">
+      <div id="cube" class="cube animate-rotate">
+        <div class="face front"><div class="icon" id="icon-front">🎓</div></div>
+        <div class="face right"><div class="icon" id="icon-right">🔬</div></div>
+        <div class="face left"><div class="icon" id="icon-left">📚</div></div>
+        <div class="face back"><div class="icon" id="icon-back">🧭</div></div>
+      </div>
+    </div>
+    <div class="note" id="scene-note">اختر مستوى لترى الأيقونة تتحول</div>
+    <div class="dev">par : taki aymen imadeddin</div>
+  </div>
+</div>
+</div>
+
+<script>
+const scenes = {
+  start: document.getElementById('scene-start'),
+  middle: document.getElementById('scene-middle')
+  // highSci, highLit تضيفهم هنا
+};
+function hideAll(){ Object.values(scenes).forEach(s=>s.classList.remove('active')) }
+function show(scene){ hideAll(); scene.classList.add('active') }
+function gotoScene(){
+  const v = document.getElementById('levelSelect').value;
+  const note = document.getElementById('scene-note');
+  if(v==='middle'){ show(scenes.middle); note.textContent='نموذج المتوسط — أدخل النقاط'; }
+  else alert('اختر مستوى');
+}
+function submitForm(formId){
+  const form = document.getElementById(formId);
+  const data = new FormData();
+  Array.from(form.querySelectorAll('input')).forEach(inp=>{if(inp.name) data.append(inp.name, inp.value||0)});
+  fetch('/analyze',{method:'POST',body:data}).then(r=>r.text()).then(html=>{
+    const win = window.open(); win.document.open(); win.document.write(html); win.document.close();
+  }).catch(err=>alert('حدث خطأ'));
+}
+</script>
+</body>
+</html>
