@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نتيجة التوجيه</title>
+<style>
+body { font-family: Arial, sans-serif; direction: rtl; padding: 20px; background: #f4f4f9; }
+h2, h3 { color: #333; }
+.stream { margin-bottom: 15px; }
+.bar-container { background: #ddd; border-radius: 10px; overflow: hidden; height: 25px; width: 100%; margin-top: 5px; }
+.bar { height: 100%; text-align: center; line-height: 25px; color: white; font-weight: bold; }
+.circle { width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#4caf50 0%, #4caf50 0%, #ddd 0%); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; margin: 0 auto; }
+.analysis { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h2>الشعبة المقترحة لك</h2>
+<div class="circle" id="mainCircle">0%</div>
+<h3 id="mainStream">علوم تجريبية</h3>
+<p>النتيجة الأكاديمية: <span id="mainScore">0/100</span></p>
+
+<h3>ترتيب باقي الشعب</h3>
+<div id="streamsList"></div>
+
+<div class="analysis" id="analysis">
+  <h3>تحليل نقاط قوتك وضعفك</h3>
+  <ul id="analysisList"></ul>
+</div>
+
+<script>
+const results = {{ results|tojson }};
+const analysisPoints = {{ analysis_points|tojson }};
+
+const main = results[0];
+document.getElementById("mainCircle").style.background = `conic-gradient(#4caf50 0% ${main.percent}%, #ddd ${main.percent}% 100%)`;
+document.getElementById("mainCircle").innerText = main.percent + "%";
+document.getElementById("mainStream").innerText = main.name;
+document.getElementById("mainScore").innerText = main.score + "/100";
+
+const streamsList = document.getElementById("streamsList");
+results.forEach((r, i) => {
+  if(i === 0) return;
+  const div = document.createElement("div");
+  div.className = "stream";
+  div.innerHTML = `<strong>${r.name}</strong>
+    <div class="bar-container">
+      <div class="bar" style="width:${r.percent}%; background:#2196f3">${r.percent}%</div>
+    </div>
+    <p>النتيجة الأكاديمية: ${r.score}/100</p>`;
+  streamsList.appendChild(div);
+});
+
+const analysisList = document.getElementById("analysisList");
+analysisPoints.forEach(a => {
+  const li = document.createElement("li");
+  li.innerText = a;
+  analysisList.appendChild(li);
+});
+</script>
+
+</body>
+</html>
