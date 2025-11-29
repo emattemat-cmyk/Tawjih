@@ -1,268 +1,202 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>مرشدك التعليمي — اختيار الشعبة</title>
-
-  <!-- نستخدم React + ReactDOM + Babel عبر CDN لنبقى بدون عملية بناء -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-
-  <style>
-    :root{ --primary:#0b66ff; --muted:#666; --card:#fff; }
-    body{font-family: "Segoe UI", Tahoma, Arial, sans-serif; background:#eef3ff; margin:0; padding:20px; color:#111; direction:rtl;}
-    .container{max-width:980px; margin:0 auto;}
-    .card{background:var(--card); border-radius:14px; padding:22px; box-shadow:0 8px 24px rgba(12,34,90,0.06); margin-bottom:18px;}
-    h1{text-align:center; margin:0 0 8px 0;}
-    .center{display:flex; gap:14px; justify-content:center; align-items:center; flex-wrap:wrap;}
-    .level-btn{padding:18px 26px; border-radius:12px; border:none; cursor:pointer; font-size:18px; min-width:200px;}
-    .level-btn:hover{transform:translateY(-3px); box-shadow:0 8px 20px rgba(10,80,200,0.08);}
-    .lvl-middle{background:linear-gradient(135deg,#1e90ff,#3fb0ff); color:#fff;}
-    .lvl-secondary{background:linear-gradient(135deg,#ff7a00,#ffb14d); color:#fff;}
-    .hidden{display:none;}
-    label{display:block; margin-bottom:6px; font-weight:600;}
-    .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
-    input[type="number"]{width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; box-sizing:border-box;}
-    .subject-box{padding:14px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,250,255,0.9)); border:1px solid #f0f4ff;}
-    .subject-title{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
-    .icon-3d{width:36px; height:36px; border-radius:8px; background:linear-gradient(145deg,#e6f0ff,#cfe8ff); display:inline-flex; align-items:center; justify-content:center; box-shadow: 6px 6px 12px rgba(0,0,0,0.06); transform:rotateX(20deg) rotateY(-10deg);}
-    .actions{display:flex; gap:10px; justify-content:center; margin-top:12px;}
-    button.primary{background:var(--primary); color:#fff; border:none; padding:12px 18px; border-radius:10px; cursor:pointer;}
-    button.ghost{background:transparent; border:1px solid #ccc; padding:10px 14px; border-radius:10px; cursor:pointer;}
-    .result-box{padding:18px; border-radius:10px; background:#fff; border:1px solid #e6eefc; margin-top:12px;}
-    .ranking{list-style:none; padding:0; margin:10px 0;}
-    .ranking li{padding:10px 12px; border-radius:8px; margin-bottom:8px; background:linear-gradient(180deg,#fbfdff,#f4f9ff); border:1px solid #e7f0ff;}
-    footer{text-align:center; color:var(--muted); margin-top:18px;}
-    .back{cursor:pointer; color:var(--muted); text-decoration:underline; background:none; border:none; padding:6px;}
-    /* responsive */
-    @media (max-width:600px){ .level-btn{min-width:140px; padding:12px 14px;} }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مرشدك التعليمي لاختيار الشعبة</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f5f5f5; color:#333; margin:0; padding:0;}
+.container { max-width:800px; margin:auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+h1,h2 { text-align:center; color:#444; }
+.form-group { margin-bottom:15px; }
+label { display:block; margin-bottom:5px; }
+input { width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; }
+button { padding:10px 20px; border:none; border-radius:5px; background:#007BFF; color:#fff; cursor:pointer; }
+button:hover { background:#0056b3; }
+.result-box { margin-top:20px; padding:15px; background:#e9ffe9; border:1px solid #0a0; border-radius:5px; }
+.footer { text-align:center; margin-top:20px; color:#666; font-size:14px; }
+</style>
 </head>
 <body>
-  <div id="root"></div>
+<div class="container">
+<h1>مرشدك التعليمي لاختيار الشعبة</h1>
+<p style="text-align:center; color:#444;">اختر مستواك ثم أدخل معدلاتك الفصلية والمعدل السنوي العام للحصول على توجيه فوري.</p>
 
-  <!-- React app in-page (Babel transforms JSX) -->
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+<div class="form-group">
+<label>اختر المستوى:</label>
+<select id="level">
+  <option value="">-- اختر --</option>
+  <option value="middle">المتوسط</option>
+  <option value="secondary">الثانوي</option>
+</select>
+</div>
 
-    // قائمة المواد لكل مستوى
-    const MIDDLE_SUBJECTS = ["اللغة_العربية","الرياضيات","الفرنسية","الفيزياء","العلوم_الطبيعية"];
-    const SCIENCE_SUBJECTS = ["الرياضيات","الفيزياء","العلوم_الطبيعية","اللغة_العربية","الفرنسية","الانجليزية"];
-    const LITERARY_SUBJECTS = ["اللغة_العربية","الفرنسية","الانجليزية","الفلسفة"];
+<div id="subjects-form"></div>
 
-    function App(){
-      const [page, setPage] = useState("choose"); // choose, middle, secChoose, science, literary
-      const [secType, setSecType] = useState(null);
-      const [formData, setFormData] = useState({}); // سيحمل كل الحقول
-      const [result, setResult] = useState(null);
-      const [loading, setLoading] = useState(false);
+<div style="text-align:center;">
+<button id="submitBtn">احسب التوجيه</button>
+</div>
 
-      useEffect(()=>{
-        // history management
-        const onpop = (e) => {
-          const state = e.state || {};
-          setPage(state.page || "choose");
-        };
-        window.addEventListener('popstate', onpop);
-        return ()=> window.removeEventListener('popstate', onpop);
-      },[]);
+<div class="result-box" id="resultBox"></div>
+<div class="footer">المطور: taki aymen imadeddin</div>
+</div>
 
-      const go = (p) => {
-        history.pushState({page:p}, '', `#${p}`);
-        setPage(p);
-        setResult(null);
-      };
+<script>
+const MIDDLE_SUBJECTS=["اللغة_العربية","الرياضيات","الفرنسية","الفيزياء","العلوم_الطبيعية"];
+const SCIENCE_SUBJECTS=["الرياضيات","الفيزياء","العلوم_الطبيعية","اللغة_العربية","الفرنسية","الانجليزية"];
+const LITERARY_SUBJECTS=["اللغة_العربية","الفرنسية","الانجليزية","الفلسفة"];
 
-      const handleInput = (name, value) => {
-        setFormData(prev=> ({...prev, [name]: value}));
-      };
+const subjectsForm = document.getElementById('subjects-form');
+const levelSelect = document.getElementById('level');
+const submitBtn = document.getElementById('submitBtn');
+let secType = "";
 
-      const submit = async (level) => {
-        setLoading(true);
-        const payload = {...formData, level: level};
-        if(level === "secondary"){
-          payload.sec_type = secType;
-        }
-        try{
-          const res = await fetch('/analyze/', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-          });
-          if(!res.ok){
-            const txt = await res.text();
-            alert('خطأ: ' + txt);
-            setLoading(false);
-            return;
-          }
-          const json = await res.json();
-          setResult(json);
-          // Scroll to result
-          setTimeout(()=> {
-            const el = document.querySelector('.result-box');
-            if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
-          }, 50);
-        }catch(err){
-          alert('خطأ في الاتصال: ' + err.message);
-        }finally{
-          setLoading(false);
-        }
-      };
+levelSelect.addEventListener('change',()=>{
+  subjectsForm.innerHTML='';
+  const level=levelSelect.value;
+  if(level==='middle'){
+    MIDDLE_SUBJECTS.forEach(s=>{
+      subjectsForm.innerHTML+=`
+      <div class="form-group">
+      <label>${s}</label>
+      <input type="number" placeholder="الفصل 1" id="${s}_s1">
+      <input type="number" placeholder="الفصل 2" id="${s}_s2">
+      <input type="number" placeholder="الفصل 3" id="${s}_s3">
+      </div>
+      `;
+    });
+    subjectsForm.innerHTML+=`
+    <div class="form-group">
+      <label>المعدل السنوي العام</label>
+      <input type="number" id="annual_general">
+    </div>`;
+  } else if(level==='secondary'){
+    const selDiv=document.createElement('div');
+    selDiv.innerHTML=`<label>اختر شعبة السنة الأولى ثانوي:</label>
+      <select id="sec_type">
+        <option value="">-- اختر --</option>
+        <option value="science">علمي</option>
+        <option value="literary">أدبي</option>
+      </select>`;
+    subjectsForm.appendChild(selDiv);
+    document.getElementById('sec_type').addEventListener('change',(e)=>{
+      secType=e.target.value;
+      renderSecondarySubjects(secType);
+    });
+  }
+});
 
-      // Helpers لإنشاء واجهة المادة
-      const SubjectBlock = ({keyName, label})=>{
-        return (
-          <div className="subject-box" key={keyName}>
-            <div className="subject-title">
-              <div className="icon-3d">{label.slice(0,2)}</div>
-              <div>{label}</div>
-            </div>
-            <label>الفصل الأول</label>
-            <input type="number" step="0.01" min="0" max="20"
-              onChange={(e)=> handleInput(`${keyName}_s1`, e.target.value)} />
-            <label>الفصل الثاني</label>
-            <input type="number" step="0.01" min="0" max="20"
-              onChange={(e)=> handleInput(`${keyName}_s2`, e.target.value)} />
-            <label>الفصل الثالث</label>
-            <input type="number" step="0.01" min="0" max="20"
-              onChange={(e)=> handleInput(`${keyName}_s3`, e.target.value)} />
-          </div>
-        );
-      };
+function renderSecondarySubjects(type){
+  let subs=[];
+  if(type==='science') subs=SCIENCE_SUBJECTS;
+  else if(type==='literary') subs=LITERARY_SUBJECTS;
+  subjectsForm.innerHTML='';
+  subs.forEach(s=>{
+    subjectsForm.innerHTML+=`
+    <div class="form-group">
+    <label>${s}</label>
+    <input type="number" placeholder="الفصل 1" id="${s}_s1">
+    <input type="number" placeholder="الفصل 2" id="${s}_s2">
+    <input type="number" placeholder="الفصل 3" id="${s}_s3">
+    </div>`;
+  });
+  subjectsForm.innerHTML+=`
+  <div class="form-group">
+    <label>المعدل السنوي العام</label>
+    <input type="number" id="annual_general">
+  </div>`;
+}
 
-      return (
-        <div className="container">
-          <div className="card">
-            <h1>مرشدك التعليمي لاختيار الشعبة</h1>
-            <p style={{textAlign:'center', color:'#444'}}>اختر مستواك ثم أدخل معدلاتك الفصلية والمعدل السنوي العام للحصول على توجيه فوري.</p>
-
-            {page === "choose" && (
-              <div id="chooseLevel" className="center">
-                <button className="level-btn lvl-middle" onClick={()=> go('middle')}>المستوى المتوسط</button>
-                <button className="level-btn lvl-secondary" onClick={()=> go('secChoose')}>المستوى الثانوي</button>
-              </div>
-            )}
-
-            {page === "middle" && (
-              <div id="middleCard">
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                  <h2>توجيه — المستوى المتوسط</h2>
-                  <div><button className="back" onClick={()=> go('choose')}>↩ رجوع</button></div>
-                </div>
-
-                <div className="grid" style={{marginTop:12}}>
-                  {MIDDLE_SUBJECTS.map(s => <SubjectBlock keyName={s} label={s.replace('_',' ')} key={s} />)}
-                </div>
-
-                <div style={{marginTop:12}}>
-                  <label>المعدل السنوي العام</label>
-                  <input type="number" step="0.01" min="0" max="20"
-                    onChange={(e)=> handleInput('annual_general', e.target.value)} placeholder="مثال: 15.25" />
-                </div>
-
-                <div className="actions">
-                  <button className="primary" onClick={()=> submit('middle')} disabled={loading}>{loading? 'جاري التحليل...':'عرض التوجيه'}</button>
-                  <button className="ghost" onClick={()=> go('choose')}>إلغاء</button>
-                </div>
-
-                {result && <ResultBox data={result} />}
-              </div>
-            )}
-
-            {page === "secChoose" && (
-              <div id="secChooseCard" style={{textAlign:'center', marginTop:12}}>
-                <h2>المستوى الثانوي — اختر شعبة السنة الأولى</h2>
-                <div className="center" style={{marginTop:12}}>
-                  <button className="level-btn lvl-middle" onClick={()=> { setSecType('science'); go('science'); }}>ثانوي علمي</button>
-                  <button className="level-btn lvl-secondary" onClick={()=> { setSecType('literary'); go('literary'); }}>ثانوي أدبي</button>
-                </div>
-                <div style={{marginTop:8}}>
-                  <button className="back" onClick={()=> go('choose')}>↩ رجوع</button>
-                </div>
-              </div>
-            )}
-
-            {page === "science" && (
-              <div id="secScienceCard">
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                  <h2>ثانوي علمي — أدخل معدلاتك</h2>
-                  <div><button className="back" onClick={()=> go('secChoose')}>↩ رجوع</button></div>
-                </div>
-
-                <div className="grid" style={{marginTop:12}}>
-                  {SCIENCE_SUBJECTS.map(s => <SubjectBlock keyName={s} label={s.replace('_',' ')} key={s} />)}
-                </div>
-
-                <div style={{marginTop:12}}>
-                  <label>المعدل السنوي العام</label>
-                  <input type="number" step="0.01" min="0" max="20"
-                    onChange={(e)=> handleInput('annual_general', e.target.value)} />
-                </div>
-
-                <div className="actions">
-                  <button className="primary" onClick={()=> submit('secondary')} disabled={loading}>{loading? 'جاري التحليل...':'عرض التوجيه'}</button>
-                  <button className="ghost" onClick={()=> go('secChoose')}>إلغاء</button>
-                </div>
-
-                {result && <ResultBox data={result} />}
-              </div>
-            )}
-
-            {page === "literary" && (
-              <div id="secLiteraryCard">
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                  <h2>ثانوي أدبي — أدخل معدلاتك</h2>
-                  <div><button className="back" onClick={()=> go('secChoose')}>↩ رجوع</button></div>
-                </div>
-
-                <div className="grid" style={{marginTop:12}}>
-                  {LITERARY_SUBJECTS.map(s => <SubjectBlock keyName={s} label={s.replace('_',' ')} key={s} />)}
-                </div>
-
-                <div style={{marginTop:12}}>
-                  <label>المعدل السنوي العام</label>
-                  <input type="number" step="0.01" min="0" max="20"
-                    onChange={(e)=> handleInput('annual_general', e.target.value)} />
-                </div>
-
-                <div className="actions">
-                  <button className="primary" onClick={()=> submit('secondary')} disabled={loading}>{loading? 'جاري التحليل...':'عرض التوجيه'}</button>
-                  <button className="ghost" onClick={()=> go('secChoose')}>إلغاء</button>
-                </div>
-
-                {result && <ResultBox data={result} />}
-              </div>
-            )}
-
-          </div>
-
-          <footer className="card" style={{textAlign:'center'}}>
-            المطور: <strong>tali aymen imadeddin</strong>
-          </footer>
-        </div>
-      );
+function computeClientRanking(level, secType, localSubjects){
+  const buildScore=(weights)=>{
+    let totalW=0,totalScore=0;
+    for(const sub in weights){
+      const w=weights[sub], val=localSubjects[sub];
+      if(val===null||val===undefined) continue;
+      totalW+=w;
+      totalScore+=val*w;
     }
-
-    function ResultBox({data}){
-      if(!data) return null;
-      return (
-        <div className="result-box" style={{marginTop:12}}>
-          <h3>نتيجة التوجيه</h3>
-          <p>المستوى: {data.level === 'middle' ? 'المتوسط' : 'الثانوي'} {data.sec_type ? `(${data.sec_type === 'science' ? 'علمي' : 'أدبي'})` : ''}</p>
-          {data.annual_general && <p>المعدل السنوي العام: {data.annual_general}</p>}
-          <ul className="ranking">
-            { (data.ranking || []).map((r, idx) => (
-              <li key={idx}><strong>{idx+1}. {r.name}</strong> — <span>{r.score === null ? 'لا توجد بيانات كافية' : r.score + ' / 20'}</span></li>
-            )) }
-          </ul>
-          <p style={{fontWeight:600}}>{data.message || 'أتمنى لك التوفيق والنجاح'}</p>
-        </div>
-      );
+    if(totalW===0) return null;
+    return Math.round(totalScore/totalW*100)/100;
+  };
+  let weightsMap={};
+  if(level==='middle'){
+    weightsMap={
+      "علوم تجريبية":{"العلوم_الطبيعية":0.4,"الفيزياء":0.3,"الرياضيات":0.2,"اللغة_العربية":0.05,"الفرنسية":0.05},
+      "رياضيات":{"الرياضيات":0.6,"الفيزياء":0.25,"الفرنسية":0.05,"اللغة_العربية":0.1},
+      "تقني رياضي":{"الرياضيات":0.45,"الفيزياء":0.35,"العلوم_الطبيعية":0.15,"الفرنسية":0.05}
+    };
+  } else {
+    if(secType==='science'){
+      weightsMap={
+        "علوم تجريبية":{"العلوم_الطبيعية":0.45,"الفيزياء":0.3,"الرياضيات":0.15,"الفرنسية":0.05,"اللغة_العربية":0.05},
+        "رياضيات":{"الرياضيات":0.6,"الفيزياء":0.25,"الفرنسية":0.05,"اللغة_العربية":0.1},
+        "تقني رياضي":{"الرياضيات":0.5,"الفيزياء":0.3,"العلوم_الطبيعية":0.15,"الفرنسية":0.05},
+        "تسيير واقتصاد":{"الرياضيات":0.35,"الفرنسية":0.2,"اللغة_العربية":0.25,"الانجليزية":0.2}
+      };
+    } else {
+      weightsMap={
+        "آداب وفلسفة":{"اللغة_العربية":0.45,"الفلسفة":0.35,"الفرنسية":0.1,"الانجليزية":0.1},
+        "لغات أجنبية":{"الفرنسية":0.45,"الانجليزية":0.45,"اللغة_العربية":0.1}
+      };
     }
+  }
+  const result=[];
+  for(const name in weightsMap){
+    const score=buildScore(weightsMap[name]);
+    result.push({name,score});
+  }
+  result.sort((a,b)=>{
+    if(a.score===null&&b.score===null) return 0;
+    if(a.score===null) return 1;
+    if(b.score===null) return -1;
+    return b.score - a.score;
+  });
+  return result;
+}
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
+submitBtn.addEventListener('click',async()=>{
+  const level=levelSelect.value;
+  if(!level) { alert('اختر المستوى'); return; }
+  const formData={};
+  const subjectsList=[...MIDDLE_SUBJECTS,...SCIENCE_SUBJECTS,...LITERARY_SUBJECTS];
+  subjectsList.forEach(s=>{
+    const v1=parseFloat(document.getElementById(s+'_s1')?.value||'')||null;
+    const v2=parseFloat(document.getElementById(s+'_s2')?.value||'')||null;
+    const v3=parseFloat(document.getElementById(s+'_s3')?.value||'')||null;
+    formData[s]=[v1,v2,v3];
+  });
+  formData['annual_general']=parseFloat(document.getElementById('annual_general')?.value||'')||null;
+  const localSubjects={};
+  subjectsList.forEach(s=>{
+    const nums=formData[s].filter(x=>x!==null);
+    localSubjects[s]=nums.length>0? Math.round(nums.reduce((a,b)=>a+b,0)/nums.length*100)/100 : null;
+  });
+  const clientRanking=computeClientRanking(level,secType,localSubjects);
+  const payload={};
+  subjectsList.forEach(s=>{
+    payload[`${s}_s1`]=formData[s][0];
+    payload[`${s}_s2`]=formData[s][1];
+    payload[`${s}_s3`]=formData[s][2];
+  });
+  payload['annual_general']=formData['annual_general'];
+  payload['level']=level;
+  payload['sec_type']=secType;
+  payload['client_ranking']=clientRanking;
+
+  try{
+    const res=await fetch('/analyze/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok){ alert('خطأ'); return; }
+    const json=await res.json();
+    const box=document.getElementById('resultBox');
+    box.innerHTML='<h2>التوجيه المقترح:</h2><ul>'+json.final_ranking.map(x=>`<li>${x.name}: ${x.score!==null?x.score:'لا توجد بيانات'}</li>`).join('')+'</ul><p>'+json.message+'</p>';
+    box.scrollIntoView({behavior:'smooth'});
+  }catch(err){ alert('خطأ في الاتصال'); }
+});
+</script>
 </body>
 </html>
