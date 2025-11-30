@@ -2,89 +2,119 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>مرشدك التعليمي</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مرشدك التعليمي لاختيار الشعبة</title>
 <style>
-body{font-family:tahoma,sans-serif;background:#f0f4f8;margin:0;padding:0}
-.container{max-width:900px;margin:20px auto;padding:20px;background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
-h1{text-align:center;color:#333}
-button{padding:10px 20px;margin:5px;font-size:16px;cursor:pointer;border:none;border-radius:8px;background:linear-gradient(145deg,#4caf50,#2e7d32);color:#fff;transition:0.3s}
-button:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}
-.form-group{margin-bottom:15px}
-label{display:block;margin-bottom:5px;font-weight:bold;color:#444}
-input{padding:8px;width:100%;border-radius:5px;border:1px solid #ccc;margin-bottom:5px}
-.result-box{margin-top:20px;padding:15px;border-radius:10px;background:#e8f5e9;color:#1b5e20;font-weight:bold}
-.footer{text-align:center;margin-top:30px;padding:15px;color:#777}
-.icon{width:50px;height:50px;display:inline-block;margin-right:10px;vertical-align:middle}
-.notice{color:#d32f2f;font-weight:bold;text-align:center;margin-bottom:15px}
+body { font-family: Tahoma, sans-serif; background:#f0f4f7; margin:0; padding:0; }
+header { text-align:center; padding:20px; background:#1976d2; color:white; font-size:24px; }
+.container { max-width:800px; margin:20px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+button { padding:10px 20px; margin:5px; border:none; border-radius:5px; cursor:pointer; font-size:16px; }
+button:hover { opacity:0.9; }
+button.level { background:#4caf50; color:white; }
+button.sec { background:#2196f3; color:white; }
+.subjects div { margin-bottom:10px; }
+input { padding:5px; width:60px; margin-left:5px; }
+.result-box { margin-top:20px; padding:15px; background:#e3f2fd; border-radius:8px; text-align:center; font-size:18px; }
+.icon { width:50px; height:50px; vertical-align:middle; margin-right:10px; }
+footer { text-align:center; padding:10px; color:#666; font-size:14px; margin-top:20px; }
+.note { color:red; margin-bottom:10px; text-align:center; }
 </style>
 </head>
 <body>
+<header>مرشدك التعليمي لاختيار الشعبة</header>
+
 <div class="container">
-<h1>مرشدك التعليمي لاختيار الشعبة</h1>
-<div id="level-selection" style="text-align:center;">
-<button onclick="selectLevel('متوسط')">المستوى المتوسط</button>
-<button onclick="selectLevel('ثانوي')">المستوى الثانوي</button>
+  <div id="formArea">
+    <p style="text-align:center">اختر مستواك:</p>
+    <div style="text-align:center;">
+      <button class="level" onclick="selectLevel('متوسط')">المستوى المتوسط</button>
+      <button class="level" onclick="selectLevel('ثانوي')">المستوى الثانوي</button>
+    </div>
+  </div>
+
+  <div class="result-box" id="resultBox" style="display:none;"></div>
 </div>
 
-<div id="form-area"></div>
-<div class="result-box" id="result"></div>
-<div class="footer">المطور: {{ developer }}</div>
-</div>
+<footer>المطور: taki aymen imadeddin</footer>
 
 <script>
-const formArea=document.getElementById('form-area');
-let selectedLevel='';
-let selectedSec='';
+let selectedLevel="";
+let selectedSec="";
 
-function selectLevel(level){selectedLevel=level;renderForm();}
-function renderForm(){
+const MIDDLE_SUBJECTS=["اللغة العربية","الرياضيات","الفرنسية","الفيزياء","العلوم الطبيعية"];
+const SCIENCE_SUBJECTS=["الرياضيات","الفيزياء","العلوم الطبيعية"];
+const LITERARY_SUBJECTS=["اللغة العربية","الفرنسية","الانجليزية","الفلسفة"];
+
+function cleanId(name){ return name.replace(/\s+/g,'_'); }
+
+function selectLevel(level){
+    selectedLevel=level;
+    const formArea=document.getElementById('formArea');
     formArea.innerHTML='';
-    if(selectedLevel==='متوسط'){renderSubjects(["اللغة العربية","الرياضيات","الفرنسية","الفيزياء","العلوم الطبيعية"]);}
-    else if(selectedLevel==='ثانوي'){
+    if(level==='متوسط'){
+        renderSubjects(MIDDLE_SUBJECTS);
+    } else {
         formArea.innerHTML='<p style="text-align:center">اختر شعبة السنة الأولى ثانوي:</p>';
-        formArea.innerHTML+='<button onclick="selectSec(\'علمي\')">علمي</button> <button onclick="selectSec(\'أدبي\')">أدبي</button>';
+        formArea.innerHTML+='<div style="text-align:center;"><button class="sec" onclick="selectSec(\'science\')">علمي</button><button class="sec" onclick="selectSec(\'literary\')">أدبي</button></div>';
     }
 }
-function selectSec(sec){selectedSec=sec;if(sec==='علمي') renderSubjects(["الرياضيات","الفيزياء","العلوم الطبيعية"]); else renderSubjects(["اللغة العربية","الفرنسية","الإنجليزية","الفلسفة"]);}
+
+function selectSec(sec){
+    selectedSec=sec;
+    const formArea=document.getElementById('formArea');
+    formArea.innerHTML='';
+    if(sec==='science') renderSubjects(SCIENCE_SUBJECTS);
+    else renderSubjects(LITERARY_SUBJECTS);
+}
+
 function renderSubjects(subjects){
-    let html='<p class="notice">يرجى إدخال المعدل الفصلي لكل مادة بدقة لضمان توجيه دقيق وموثوق لشعبتك المستقبلية.</p>';
-    subjects.forEach(s=>{
-        html+=`<div class="form-group">
-            <label>${s}</label>
-            <input type="number" placeholder="الفصل 1" id="${s}_s1">
-            <input type="number" placeholder="الفصل 2" id="${s}_s2">
-            <input type="number" placeholder="الفصل 3" id="${s}_s3">
-        </div>`;
+    const formArea=document.getElementById('formArea');
+    let html='<p class="note">يجب إدخال المعدل الفصلي لكل مادة بدقة ليكون التوجيه دقيق</p>';
+    subjects.forEach(sub=>{
+        const idBase=cleanId(sub);
+        html+=`<div><label>${sub}:</label>
+        الفصل 1<input type="number" id="${idBase}_s1" min="0" max="20">
+        الفصل 2<input type="number" id="${idBase}_s2" min="0" max="20">
+        الفصل 3<input type="number" id="${idBase}_s3" min="0" max="20"></div>`;
     });
-    html+=`<button onclick="submitForm()">احسب الشعبة الملائمة</button>`;
+    html+=`<div style="text-align:center;"><button onclick="submitForm()">نتيجة التوجيه</button></div>`;
     formArea.innerHTML=html;
 }
-async function submitForm(){
-    const subjectsList=document.querySelectorAll('.form-group');
-    const data={level:selectedLevel, sec_type:selectedSec};
-    subjectsList.forEach(div=>{
-        const label=div.querySelector('label').innerText;
-        data[`${label}_s1`]=div.querySelector('#'+label+'_s1').value;
-        data[`${label}_s2`]=div.querySelector('#'+label+'_s2').value;
-        data[`${label}_s3`]=div.querySelector('#'+label+'_s3').value;
+
+function submitForm(){
+    const subjectsList=(selectedLevel==='متوسط')?MIDDLE_SUBJECTS: (selectedSec==='science'?SCIENCE_SUBJECTS:LITERARY_SUBJECTS);
+    const data={level:selectedLevel};
+    if(selectedLevel==='ثانوي') data.sec_type=selectedSec;
+
+    subjectsList.forEach(sub=>{
+        const idBase=cleanId(sub);
+        data[`${sub}_s1`]=parseFloat(document.getElementById(idBase+'_s1').value)||0;
+        data[`${sub}_s2`]=parseFloat(document.getElementById(idBase+'_s2').value)||0;
+        data[`${sub}_s3`]=parseFloat(document.getElementById(idBase+'_s3').value)||0;
     });
-    try{
-        const res=await fetch('/analyze/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-        const json=await res.json();
-        displayResult(json);
-    }catch(err){alert('حدث خطأ: '+err);}
-}
-function displayResult(json){
-    let html='';
-    if(json.best){
-        html+=`<div><img src="/static/icons/${json.best.name}.png" class="icon">${json.best.name} - نسبة الملائمة: ${json.best.match_percent}%</div>`;
-    }
-    html+='<hr>';
-    json.all.forEach(r=>{html+=`<div><img src="/static/icons/${r.name}.png" class="icon">${r.name} - ${r.match_percent}%</div>`;});
-    html+=`<p style="margin-top:10px">${json.message}</p>`;
-    document.getElementById('result').innerHTML=html;
+
+    fetch('/analyze/',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    }).then(res=>res.json())
+    .then(json=>{
+        const resultBox=document.getElementById('resultBox');
+        resultBox.style.display='block';
+        const best=json.final_ranking[0];
+
+        const iconPath=`/static/icons/${best.name}.png`;
+        const imgCheck=new Image();
+        imgCheck.src=iconPath;
+        imgCheck.onerror=function(){ this.src='/static/icons/default.png'; };
+
+        let html=`<div>الشعبة الملائمة لك:<br><img class="icon" src="${iconPath}">${best.name} - نسبة الملائمة: ${best.match_percent}%</div>`;
+        html+=`<p>أتمنى لك التوفيق والنجاح</p>`;
+        resultBox.innerHTML=html;
+    }).catch(err=>{
+        alert('خطأ في الاتصال: '+err);
+    });
 }
 </script>
+
 </body>
 </html>
