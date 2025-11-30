@@ -5,17 +5,18 @@
 <title>مرشدك التعليمي</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{font-family:tahoma, sans-serif;background:#f0f4f8;margin:0;padding:0}
+body{font-family:tahoma,sans-serif;background:#f0f4f8;margin:0;padding:0}
 .container{max-width:900px;margin:20px auto;padding:20px;background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
 h1{text-align:center;color:#333}
 button{padding:10px 20px;margin:5px;font-size:16px;cursor:pointer;border:none;border-radius:8px;background:linear-gradient(145deg,#4caf50,#2e7d32);color:#fff;transition:0.3s}
 button:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}
 .form-group{margin-bottom:15px}
 label{display:block;margin-bottom:5px;font-weight:bold;color:#444}
-input{padding:8px;width:100%;border-radius:5px;border:1px solid #ccc}
+input{padding:8px;width:100%;border-radius:5px;border:1px solid #ccc;margin-bottom:5px}
 .result-box{margin-top:20px;padding:15px;border-radius:10px;background:#e8f5e9;color:#1b5e20;font-weight:bold}
 .footer{text-align:center;margin-top:30px;padding:15px;color:#777}
 .icon{width:50px;height:50px;display:inline-block;margin-right:10px;vertical-align:middle}
+.notice{color:#d32f2f;font-weight:bold;text-align:center;margin-bottom:15px}
 </style>
 </head>
 <body>
@@ -36,40 +37,29 @@ const formArea=document.getElementById('form-area');
 let selectedLevel='';
 let selectedSec='';
 
-function selectLevel(level){
-    selectedLevel=level;
-    renderForm();
-}
-
+function selectLevel(level){selectedLevel=level;renderForm();}
 function renderForm(){
     formArea.innerHTML='';
-    if(selectedLevel==='متوسط'){
-        renderSubjects(["اللغة العربية","الرياضيات","الفرنسية","الفيزياء","العلوم الطبيعية"]);
-    }else if(selectedLevel==='ثانوي'){
+    if(selectedLevel==='متوسط'){renderSubjects(["اللغة العربية","الرياضيات","الفرنسية","الفيزياء","العلوم الطبيعية"]);}
+    else if(selectedLevel==='ثانوي'){
         formArea.innerHTML='<p style="text-align:center">اختر شعبة السنة الأولى ثانوي:</p>';
         formArea.innerHTML+='<button onclick="selectSec(\'علمي\')">علمي</button> <button onclick="selectSec(\'أدبي\')">أدبي</button>';
     }
 }
-
-function selectSec(sec){
-    selectedSec=sec;
-    if(sec==='علمي') renderSubjects(["الرياضيات","الفيزياء","العلوم الطبيعية"]);
-    else renderSubjects(["اللغة العربية","الفرنسية","الإنجليزية","الفلسفة"]);
-}
-
+function selectSec(sec){selectedSec=sec;if(sec==='علمي') renderSubjects(["الرياضيات","الفيزياء","العلوم الطبيعية"]); else renderSubjects(["اللغة العربية","الفرنسية","الإنجليزية","الفلسفة"]);}
 function renderSubjects(subjects){
-    let html='';
+    let html='<p class="notice">يرجى إدخال المعدل الفصلي لكل مادة بدقة لضمان توجيه دقيق وموثوق لشعبتك المستقبلية.</p>';
     subjects.forEach(s=>{
-        html+=`<div class="form-group"><label>${s}</label>
-        <input type="number" placeholder="الفصل 1" id="${s}_s1">
-        <input type="number" placeholder="الفصل 2" id="${s}_s2">
-        <input type="number" placeholder="الفصل 3" id="${s}_s3">
+        html+=`<div class="form-group">
+            <label>${s}</label>
+            <input type="number" placeholder="الفصل 1" id="${s}_s1">
+            <input type="number" placeholder="الفصل 2" id="${s}_s2">
+            <input type="number" placeholder="الفصل 3" id="${s}_s3">
         </div>`;
     });
     html+=`<button onclick="submitForm()">احسب الشعبة الملائمة</button>`;
     formArea.innerHTML=html;
 }
-
 async function submitForm(){
     const subjectsList=document.querySelectorAll('.form-group');
     const data={level:selectedLevel, sec_type:selectedSec};
@@ -85,16 +75,13 @@ async function submitForm(){
         displayResult(json);
     }catch(err){alert('حدث خطأ: '+err);}
 }
-
 function displayResult(json){
     let html='';
     if(json.best){
         html+=`<div><img src="/static/icons/${json.best.name}.png" class="icon">${json.best.name} - نسبة الملائمة: ${json.best.match_percent}%</div>`;
     }
     html+='<hr>';
-    json.all.forEach(r=>{
-        html+=`<div><img src="/static/icons/${r.name}.png" class="icon">${r.name} - ${r.match_percent}%</div>`;
-    });
+    json.all.forEach(r=>{html+=`<div><img src="/static/icons/${r.name}.png" class="icon">${r.name} - ${r.match_percent}%</div>`;});
     html+=`<p style="margin-top:10px">${json.message}</p>`;
     document.getElementById('result').innerHTML=html;
 }
