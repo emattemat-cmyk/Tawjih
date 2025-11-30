@@ -1,4 +1,4 @@
-import os
+   import os
 from flask import Flask, request, jsonify, render_template
 from statistics import mean
 
@@ -8,12 +8,12 @@ def safe_float(x):
     try:
         return float(x)
     except (TypeError, ValueError):
-        return 0.0
+        return None
 
 def avg_of_semesters(values):
     nums = [safe_float(v) for v in values if safe_float(v) is not None]
-    if not nums:
-        return 0.0
+    if len(nums) != len(values):
+        return None  # اذا لم يتم ادخال كل الخانات
     return round(mean(nums), 2)
 
 def get_weights(level, sec_type):
@@ -42,13 +42,18 @@ def get_weights(level, sec_type):
 def compute_scores(subjects, weights_map):
     results=[]
     for name, weights in weights_map.items():
+        valid=True
         total_w=sum(weights.values())
         score=0.0
         for sub, w in weights.items():
-            val=subjects.get(sub,0.0)
+            val=subjects.get(sub)
+            if val is None:
+                valid=False
+                break
             score += val*w
-        percent=round((score/total_w)*100,2) if total_w>0 else 0.0
-        results.append({"name":name,"match_percent":percent})
+        if valid and total_w>0:
+            percent=round((score/total_w)*100,2)
+            results.append({"name":name,"match_percent":percent})
     results_sorted=sorted(results, key=lambda x: x["match_percent"], reverse=True)
     return results_sorted
 
@@ -68,7 +73,7 @@ def analyze():
             sub_name=key.rsplit("_",1)[0]
             if sub_name not in subjects:
                 subjects[sub_name]=[]
-            subjects[sub_name].append(safe_float(data[key]))
+            subjects[sub_name].append(data[key])
 
     for sub in subjects:
         subjects[sub]=avg_of_semesters(subjects[sub])
@@ -78,14 +83,9 @@ def analyze():
 
     response={"final_ranking":final_ranking}
     return jsonify(response)
-    
+
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5000))
 
     app.run(host="0.0.0.0", port=port, debug=True)
-
-
-
-
-
