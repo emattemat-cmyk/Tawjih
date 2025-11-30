@@ -2,201 +2,102 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
+<title>مرشدك التعليمي</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مرشدك التعليمي لاختيار الشعبة</title>
 <style>
-body { font-family: Arial, sans-serif; background: #f5f5f5; color:#333; margin:0; padding:0;}
-.container { max-width:800px; margin:auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-h1,h2 { text-align:center; color:#444; }
-.form-group { margin-bottom:15px; }
-label { display:block; margin-bottom:5px; }
-input { width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; }
-button { padding:10px 20px; border:none; border-radius:5px; background:#007BFF; color:#fff; cursor:pointer; }
-button:hover { background:#0056b3; }
-.result-box { margin-top:20px; padding:15px; background:#e9ffe9; border:1px solid #0a0; border-radius:5px; }
-.footer { text-align:center; margin-top:20px; color:#666; font-size:14px; }
+body{font-family:tahoma, sans-serif;background:#f0f4f8;margin:0;padding:0}
+.container{max-width:900px;margin:20px auto;padding:20px;background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
+h1{text-align:center;color:#333}
+button{padding:10px 20px;margin:5px;font-size:16px;cursor:pointer;border:none;border-radius:8px;background:linear-gradient(145deg,#4caf50,#2e7d32);color:#fff;transition:0.3s}
+button:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+.form-group{margin-bottom:15px}
+label{display:block;margin-bottom:5px;font-weight:bold;color:#444}
+input{padding:8px;width:100%;border-radius:5px;border:1px solid #ccc}
+.result-box{margin-top:20px;padding:15px;border-radius:10px;background:#e8f5e9;color:#1b5e20;font-weight:bold}
+.footer{text-align:center;margin-top:30px;padding:15px;color:#777}
+.icon{width:50px;height:50px;display:inline-block;margin-right:10px;vertical-align:middle}
 </style>
 </head>
 <body>
 <div class="container">
 <h1>مرشدك التعليمي لاختيار الشعبة</h1>
-<p style="text-align:center; color:#444;">اختر مستواك ثم أدخل معدلاتك الفصلية والمعدل السنوي العام للحصول على توجيه فوري.</p>
-
-<div class="form-group">
-<label>اختر المستوى:</label>
-<select id="level">
-  <option value="">-- اختر --</option>
-  <option value="middle">المتوسط</option>
-  <option value="secondary">الثانوي</option>
-</select>
+<div id="level-selection" style="text-align:center;">
+<button onclick="selectLevel('متوسط')">المستوى المتوسط</button>
+<button onclick="selectLevel('ثانوي')">المستوى الثانوي</button>
 </div>
 
-<div id="subjects-form"></div>
-
-<div style="text-align:center;">
-<button id="submitBtn">احسب التوجيه</button>
-</div>
-
-<div class="result-box" id="resultBox"></div>
-<div class="footer">المطور: taki aymen imadeddin</div>
+<div id="form-area"></div>
+<div class="result-box" id="result"></div>
+<div class="footer">المطور: {{ developer }}</div>
 </div>
 
 <script>
-const MIDDLE_SUBJECTS=["اللغة_العربية","الرياضيات","الفرنسية","الفيزياء","العلوم_الطبيعية"];
-const SCIENCE_SUBJECTS=["الرياضيات","الفيزياء","العلوم_الطبيعية","اللغة_العربية","الفرنسية","الانجليزية"];
-const LITERARY_SUBJECTS=["اللغة_العربية","الفرنسية","الانجليزية","الفلسفة"];
+const formArea=document.getElementById('form-area');
+let selectedLevel='';
+let selectedSec='';
 
-const subjectsForm = document.getElementById('subjects-form');
-const levelSelect = document.getElementById('level');
-const submitBtn = document.getElementById('submitBtn');
-let secType = "";
-
-levelSelect.addEventListener('change',()=>{
-  subjectsForm.innerHTML='';
-  const level=levelSelect.value;
-  if(level==='middle'){
-    MIDDLE_SUBJECTS.forEach(s=>{
-      subjectsForm.innerHTML+=`
-      <div class="form-group">
-      <label>${s}</label>
-      <input type="number" placeholder="الفصل 1" id="${s}_s1">
-      <input type="number" placeholder="الفصل 2" id="${s}_s2">
-      <input type="number" placeholder="الفصل 3" id="${s}_s3">
-      </div>
-      `;
-    });
-    subjectsForm.innerHTML+=`
-    <div class="form-group">
-      <label>المعدل السنوي العام</label>
-      <input type="number" id="annual_general">
-    </div>`;
-  } else if(level==='secondary'){
-    const selDiv=document.createElement('div');
-    selDiv.innerHTML=`<label>اختر شعبة السنة الأولى ثانوي:</label>
-      <select id="sec_type">
-        <option value="">-- اختر --</option>
-        <option value="science">علمي</option>
-        <option value="literary">أدبي</option>
-      </select>`;
-    subjectsForm.appendChild(selDiv);
-    document.getElementById('sec_type').addEventListener('change',(e)=>{
-      secType=e.target.value;
-      renderSecondarySubjects(secType);
-    });
-  }
-});
-
-function renderSecondarySubjects(type){
-  let subs=[];
-  if(type==='science') subs=SCIENCE_SUBJECTS;
-  else if(type==='literary') subs=LITERARY_SUBJECTS;
-  subjectsForm.innerHTML='';
-  subs.forEach(s=>{
-    subjectsForm.innerHTML+=`
-    <div class="form-group">
-    <label>${s}</label>
-    <input type="number" placeholder="الفصل 1" id="${s}_s1">
-    <input type="number" placeholder="الفصل 2" id="${s}_s2">
-    <input type="number" placeholder="الفصل 3" id="${s}_s3">
-    </div>`;
-  });
-  subjectsForm.innerHTML+=`
-  <div class="form-group">
-    <label>المعدل السنوي العام</label>
-    <input type="number" id="annual_general">
-  </div>`;
+function selectLevel(level){
+    selectedLevel=level;
+    renderForm();
 }
 
-function computeClientRanking(level, secType, localSubjects){
-  const buildScore=(weights)=>{
-    let totalW=0,totalScore=0;
-    for(const sub in weights){
-      const w=weights[sub], val=localSubjects[sub];
-      if(val===null||val===undefined) continue;
-      totalW+=w;
-      totalScore+=val*w;
+function renderForm(){
+    formArea.innerHTML='';
+    if(selectedLevel==='متوسط'){
+        renderSubjects(["اللغة العربية","الرياضيات","الفرنسية","الفيزياء","العلوم الطبيعية"]);
+    }else if(selectedLevel==='ثانوي'){
+        formArea.innerHTML='<p style="text-align:center">اختر شعبة السنة الأولى ثانوي:</p>';
+        formArea.innerHTML+='<button onclick="selectSec(\'علمي\')">علمي</button> <button onclick="selectSec(\'أدبي\')">أدبي</button>';
     }
-    if(totalW===0) return null;
-    return Math.round(totalScore/totalW*100)/100;
-  };
-  let weightsMap={};
-  if(level==='middle'){
-    weightsMap={
-      "علوم تجريبية":{"العلوم_الطبيعية":0.4,"الفيزياء":0.3,"الرياضيات":0.2,"اللغة_العربية":0.05,"الفرنسية":0.05},
-      "رياضيات":{"الرياضيات":0.6,"الفيزياء":0.25,"الفرنسية":0.05,"اللغة_العربية":0.1},
-      "تقني رياضي":{"الرياضيات":0.45,"الفيزياء":0.35,"العلوم_الطبيعية":0.15,"الفرنسية":0.05}
-    };
-  } else {
-    if(secType==='science'){
-      weightsMap={
-        "علوم تجريبية":{"العلوم_الطبيعية":0.45,"الفيزياء":0.3,"الرياضيات":0.15,"الفرنسية":0.05,"اللغة_العربية":0.05},
-        "رياضيات":{"الرياضيات":0.6,"الفيزياء":0.25,"الفرنسية":0.05,"اللغة_العربية":0.1},
-        "تقني رياضي":{"الرياضيات":0.5,"الفيزياء":0.3,"العلوم_الطبيعية":0.15,"الفرنسية":0.05},
-        "تسيير واقتصاد":{"الرياضيات":0.35,"الفرنسية":0.2,"اللغة_العربية":0.25,"الانجليزية":0.2}
-      };
-    } else {
-      weightsMap={
-        "آداب وفلسفة":{"اللغة_العربية":0.45,"الفلسفة":0.35,"الفرنسية":0.1,"الانجليزية":0.1},
-        "لغات أجنبية":{"الفرنسية":0.45,"الانجليزية":0.45,"اللغة_العربية":0.1}
-      };
-    }
-  }
-  const result=[];
-  for(const name in weightsMap){
-    const score=buildScore(weightsMap[name]);
-    result.push({name,score});
-  }
-  result.sort((a,b)=>{
-    if(a.score===null&&b.score===null) return 0;
-    if(a.score===null) return 1;
-    if(b.score===null) return -1;
-    return b.score - a.score;
-  });
-  return result;
 }
 
-submitBtn.addEventListener('click',async()=>{
-  const level=levelSelect.value;
-  if(!level) { alert('اختر المستوى'); return; }
-  const formData={};
-  const subjectsList=[...MIDDLE_SUBJECTS,...SCIENCE_SUBJECTS,...LITERARY_SUBJECTS];
-  subjectsList.forEach(s=>{
-    const v1=parseFloat(document.getElementById(s+'_s1')?.value||'')||null;
-    const v2=parseFloat(document.getElementById(s+'_s2')?.value||'')||null;
-    const v3=parseFloat(document.getElementById(s+'_s3')?.value||'')||null;
-    formData[s]=[v1,v2,v3];
-  });
-  formData['annual_general']=parseFloat(document.getElementById('annual_general')?.value||'')||null;
-  const localSubjects={};
-  subjectsList.forEach(s=>{
-    const nums=formData[s].filter(x=>x!==null);
-    localSubjects[s]=nums.length>0? Math.round(nums.reduce((a,b)=>a+b,0)/nums.length*100)/100 : null;
-  });
-  const clientRanking=computeClientRanking(level,secType,localSubjects);
-  const payload={};
-  subjectsList.forEach(s=>{
-    payload[`${s}_s1`]=formData[s][0];
-    payload[`${s}_s2`]=formData[s][1];
-    payload[`${s}_s3`]=formData[s][2];
-  });
-  payload['annual_general']=formData['annual_general'];
-  payload['level']=level;
-  payload['sec_type']=secType;
-  payload['client_ranking']=clientRanking;
+function selectSec(sec){
+    selectedSec=sec;
+    if(sec==='علمي') renderSubjects(["الرياضيات","الفيزياء","العلوم الطبيعية"]);
+    else renderSubjects(["اللغة العربية","الفرنسية","الإنجليزية","الفلسفة"]);
+}
 
-  try{
-    const res=await fetch('/analyze/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
+function renderSubjects(subjects){
+    let html='';
+    subjects.forEach(s=>{
+        html+=`<div class="form-group"><label>${s}</label>
+        <input type="number" placeholder="الفصل 1" id="${s}_s1">
+        <input type="number" placeholder="الفصل 2" id="${s}_s2">
+        <input type="number" placeholder="الفصل 3" id="${s}_s3">
+        </div>`;
     });
-    if(!res.ok){ alert('خطأ'); return; }
-    const json=await res.json();
-    const box=document.getElementById('resultBox');
-    box.innerHTML='<h2>التوجيه المقترح:</h2><ul>'+json.final_ranking.map(x=>`<li>${x.name}: ${x.score!==null?x.score:'لا توجد بيانات'}</li>`).join('')+'</ul><p>'+json.message+'</p>';
-    box.scrollIntoView({behavior:'smooth'});
-  }catch(err){ alert('خطأ في الاتصال'); }
-});
+    html+=`<button onclick="submitForm()">احسب الشعبة الملائمة</button>`;
+    formArea.innerHTML=html;
+}
+
+async function submitForm(){
+    const subjectsList=document.querySelectorAll('.form-group');
+    const data={level:selectedLevel, sec_type:selectedSec};
+    subjectsList.forEach(div=>{
+        const label=div.querySelector('label').innerText;
+        data[`${label}_s1`]=div.querySelector('#'+label+'_s1').value;
+        data[`${label}_s2`]=div.querySelector('#'+label+'_s2').value;
+        data[`${label}_s3`]=div.querySelector('#'+label+'_s3').value;
+    });
+    try{
+        const res=await fetch('/analyze/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+        const json=await res.json();
+        displayResult(json);
+    }catch(err){alert('حدث خطأ: '+err);}
+}
+
+function displayResult(json){
+    let html='';
+    if(json.best){
+        html+=`<div><img src="/static/icons/${json.best.name}.png" class="icon">${json.best.name} - نسبة الملائمة: ${json.best.match_percent}%</div>`;
+    }
+    html+='<hr>';
+    json.all.forEach(r=>{
+        html+=`<div><img src="/static/icons/${r.name}.png" class="icon">${r.name} - ${r.match_percent}%</div>`;
+    });
+    html+=`<p style="margin-top:10px">${json.message}</p>`;
+    document.getElementById('result').innerHTML=html;
+}
 </script>
 </body>
 </html>
